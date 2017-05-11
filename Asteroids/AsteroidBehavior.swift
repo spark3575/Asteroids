@@ -8,7 +8,9 @@
 
 import UIKit
 
-class AsteroidBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate {
+class AsteroidBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
+{
+    // MARK: Child Behaviors
     
     private lazy var collider: UICollisionBehavior = {
         let behavior = UICollisionBehavior()
@@ -33,28 +35,21 @@ class AsteroidBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate {
         return behavior
     }()
     
-    private var collisionHandlers = [String:(Void)->Void]()
-    
-    func setBoundary(_ path: UIBezierPath?, named name: String, handler: ((Void)->Void)?) {
-        collider.removeBoundary(withIdentifier: name as NSString)
-        collisionHandlers[name] = nil
-        if path != nil {
-            collider.addBoundary(withIdentifier: name as NSString, for: path!)
-            collisionHandlers[name] = handler
+    func pushAllAsteroids(by magnitude: Range<CGFloat> = 0..<0.5) {
+        for asteroid in asteroids {
+            let pusher = UIPushBehavior(items: [asteroid], mode: .instantaneous)
+            pusher.magnitude = CGFloat.random(in: magnitude)
+            pusher.angle = CGFloat.random(in: 0..<CGFloat.pi*2)
+            pusher.action = { [unowned pusher] in
+                pusher.dynamicAnimator?.removeBehavior(pusher)
+            }
+            addChildBehavior(pusher)
         }
     }
     
-    func collisionBehavior(
-        _ behavior: UICollisionBehavior,
-        beganContactFor item: UIDynamicItem,
-        withBoundaryIdentifier identifier: NSCopying?,
-        at p: CGPoint
-    ) {
-        if let name = identifier as? String, let handler = collisionHandlers[name] {
-            handler()
-        }
-    }
+    // MARK: Adding and Removing Asteroids
     
+    private var asteroids = [AsteroidView]()
     var speedLimit: CGFloat = 300.0
     
     override init() {
@@ -92,6 +87,38 @@ class AsteroidBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate {
         }
     }
     
+    // MARK: Collision Handling
+    
+    private var collisionHandlers = [String:(Void)->Void]()
+    
+    // set a named UIBezierPath as a boundary for collisions
+    // allows providing a closure to invoke when a collision occurs
+    func setBoundary(_ path: UIBezierPath?, named name: String, handler: ((Void)->Void)?) {
+        collider.removeBoundary(withIdentifier: name as NSString)
+        collisionHandlers[name] = nil
+        if path != nil {
+            collider.addBoundary(withIdentifier: name as NSString, for: path!)
+            collisionHandlers[name] = handler
+        }
+    }
+    
+    // UICollisionBehaviorDelegate
+    func collisionBehavior(
+        _ behavior: UICollisionBehavior,
+        beganContactFor item: UIDynamicItem,
+        withBoundaryIdentifier identifier: NSCopying?,
+        at p: CGPoint
+    ) {
+        if let name = identifier as? String, let handler = collisionHandlers[name] {
+            handler()
+        }
+    }
+    
+    // MARK: Recapturing Wayward Asteroids
+    
+    // inherited from UIDynamicBehavior
+    // let's us know when our UIDynamicAnimator changes
+    // we need to know so we can stop/start our wayward asteroid recapture
     override func willMove(to dynamicAnimator: UIDynamicAnimator?) {
         super.willMove(to: dynamicAnimator)
         if dynamicAnimator == nil {
@@ -101,16 +128,11 @@ class AsteroidBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate {
         }
     }
     
-    func pushAllAsteroids(by magnitude: Range<CGFloat> = 0..<0.5) {
-        for asteroid in asteroids {
-            let pusher = UIPushBehavior(items: [asteroid], mode: .instantaneous)
-            pusher.magnitude = CGFloat.random(in: magnitude)
-            pusher.angle = CGFloat.random(in: 0..<CGFloat.pi*2)
-            addChildBehavior(pusher)
-        }
-    }
-    
-    private var asteroids = [AsteroidView]()
+    // every 0.5s
+    // we look around for asteroids that are
+    // outside an asteroid's superview
+    // we wrap it around to the other side
+    // we take care to notify the animator that we've moved the item // using updateItem(usingCurrentState:)
     
     var recaptureCount = 0
     private weak var recaptureTimer: Timer?

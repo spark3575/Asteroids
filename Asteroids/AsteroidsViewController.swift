@@ -17,6 +17,8 @@ class AsteroidsViewController: UIViewController
     
     private lazy var animator: UIDynamicAnimator = UIDynamicAnimator(referenceView: self.asteroidField)
     
+    // MARK: View Controller Lifecycle
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         initializeIfNeeded()
@@ -29,6 +31,14 @@ class AsteroidsViewController: UIViewController
         animator.removeBehavior(asteroidBehavior)
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        asteroidField?.center = view.bounds.mid
+        repositionShip()
+    }
+    
+    // MARK: Initializing and Positioning
+    
     private func initializeIfNeeded() {
         if asteroidField == nil {
             asteroidField = AsteroidFieldView(frame: CGRect(center: view.bounds.mid, size: view.bounds.size * Constants.asteroidFieldMagnitude))
@@ -40,12 +50,6 @@ class AsteroidsViewController: UIViewController
             asteroidField.addAsteroids(count: Constants.initialAsteroidCount, exclusionZone: ship.convert(ship.bounds, to: asteroidField))
             asteroidField.asteroidBehavior = asteroidBehavior
         }
-    }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        asteroidField?.center = view.bounds.mid
-        repositionShip()
     }
     
     private func repositionShip() {
@@ -68,6 +72,8 @@ class AsteroidsViewController: UIViewController
             }
         }
     }
+    
+    // MARK: Firing Engines
     
     @IBAction func burn(_ sender: UILongPressGestureRecognizer) {
         switch sender.state {

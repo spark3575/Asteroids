@@ -64,11 +64,13 @@
 		B0A590201EC4AF490027CD1E /* Asteroids */ = {
 			isa = PBXGroup;
 			children = (
-				B0A590251EC4AF490027CD1E /* Main.storyboard */,
-				B0A590231EC4AF490027CD1E /* AsteroidsViewController.swift */,
 				B0A5903C1EC4B7550027CD1E /* AsteroidBehavior.swift */,
 				B0A590341EC4B0EE0027CD1E /* AsteroidFieldView.swift */,
 				B0A590371EC4B0EE0027CD1E /* AsteroidView.swift */,
+				B0A590351EC4B0EE0027CD1E /* SpaceshipView.swift */,
+				B0A590231EC4AF490027CD1E /* AsteroidsViewController.swift */,
+				B0A590361EC4B0EE0027CD1E /* CoreGraphicsExtensions.swift */,
+				B0A590251EC4AF490027CD1E /* Main.storyboard */,
 				B0A590281EC4AF490027CD1E /* Assets.xcassets */,
 				B0A590331EC4AF710027CD1E /* Supporting Files */,
 			);
@@ -78,8 +80,6 @@
 		B0A590331EC4AF710027CD1E /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				B0A590351EC4B0EE0027CD1E /* SpaceshipView.swift */,
-				B0A590361EC4B0EE0027CD1E /* CoreGraphicsExtensions.swift */,
 				B0A590211EC4AF490027CD1E /* AppDelegate.swift */,
 				B0A5902A1EC4AF490027CD1E /* LaunchScreen.storyboard */,
 				B0A5902D1EC4AF490027CD1E /* Info.plist */,
